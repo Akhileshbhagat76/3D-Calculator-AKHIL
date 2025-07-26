@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>3D Calculator-AKHIL</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap');
+  body {
+    background: #121212;
+    font-family: 'Montserrat', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  .calculator {
+    background: #222222cc;
+    width: 320px;
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgb(0 0 0 / 0.9);
+    padding: 24px 24px 32px;
+    color: #ddd;
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+  }
+  .history {
+    font-size: 0.85rem;
+    min-height: 74px;
+    line-height: 1.25;
+    color: #8a8a8a;
+    word-break: break-word;
+    letter-spacing: 0.01em;
+  }
+  .result-row {
+    margin-top: 12px;
+    display: flex;
+    align-items: baseline;
+  }
+  .equals-sign {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #999;
+    margin-right: 12px;
+    user-select: none;
+  }
+  .result {
+    font-weight: 700;
+    font-size: 2.5rem;
+    color: #ccc;
+    flex: 1;
+    text-align: right;
+    user-select: text;
+  }
+  /* Toggle theme row */
+  .theme-toggle-row {
+    margin: 16px 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    color: #777;
+    font-size: 0.78rem;
+    user-select: none;
+  }
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 24px;
+    margin-right: 10px;
+  }
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    background-color: #555;
+    border-radius: 12px;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transition: 0.3s ease;
+  }
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #ccc;
+    border-radius: 50%;
+    transition: 0.3s ease;
+  }
+  input:checked + .slider {
+    background-color: #7c3aed;
+  }
+  input:checked + .slider:before {
+    transform: translateX(24px);
+    background-color: #fff;
+  }
+
+  /* Buttons grid */
+  .buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 16px;
+  }
+  button {
+    cursor: pointer;
+    border: none;
+    border-radius: 50%;
+    height: 56px;
+    width: 56px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #ddd;
+    background: #333333;
+    box-shadow:
+      0 6px 0 #1a1a1a,
+      0 0 12px rgba(0,0,0,0.6),
+      inset 0 -3px 6px #121212;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition:
+      background-color 0.3s,
+      box-shadow 0.15s,
+      transform 0.15s;
+    user-select: none;
+  }
+  button.operator {
+    background: #58407c;
+    box-shadow:
+      0 6px 0 #3a2f5e,
+      0 0 18px rgba(93,69,140,0.7),
+      inset 0 -3px 6px #3a2f5e;
+    color: #e9d66b;
+  }
+  button.equal {
+    grid-row: span 2;
+    border-radius: 28px;
+    background: #7c3aed;
+    box-shadow:
+      0 8px 0 #4f2ca9,
+      0 0 24px rgba(124,58,237,0.85),
+      inset 0 -4px 8px #4f2ca9;
+    font-size: 1.3rem;
+    color: #fff;
+    padding-bottom: 4px;
+  }
+  button.clear {
+    background: #f5a623;
+    color: #3c1f00;
+    box-shadow:
+      0 6px 0 #aa7a09,
+      0 0 15px rgba(245,166,35,0.8),
+      inset 0 -3px 6px #aa7a09;
+  }
+
+  button:active {
+    transform: translateY(3px);
+    box-shadow:
+      0 3px 0 #121212,
+      0 0 8px rgba(0,0,0,0.5),
+      inset 0 -1px 3px #121212;
+  }
+  button:hover {
+    filter: brightness(110%);
+    transform: translateY(-2px);
+    box-shadow:
+      0 8px 0 #222,
+      0 0 18px rgba(0,0,0,0.9),
+      inset 0 -5px 10px #222;
+  }
+
+  /* Special buttons: parentheses and sqrt, percent, division, multiply, minus, plus */
+  button.paren, button.sqrt, button.percent {
+    background: #4b4b4b;
+    box-shadow:
+      0 6px 0 #222,
+      0 0 12px rgba(0,0,0,0.7),
+      inset 0 -3px 6px #222;
+    color: #ddb347;
+  }
+  button.operator:hover {
+    filter: brightness(130%);
+    transform: translateY(-2.5px);
+    box-shadow:
+      0 10px 0 #3a2f5e,
+      0 0 22px rgba(93,69,140,0.9),
+      inset 0 -5px 9px #3a2f5e;
+  }
+  button.equal:hover {
+    filter: brightness(130%);
+    transform: translateY(-3px);
+    box-shadow:
+      0 10px 0 #4f2ca9,
+      0 0 30px rgba(124,58,237,1),
+      inset 0 -5px 9px #4f2ca9;
+  }
+
+  /* Numbers */
+  button.number:hover {
+    filter: brightness(120%);
+  }
+
+  /* Dot and backspace */
+  button.dot, button.backspace {
+    background: #3a3a3a;
+    box-shadow:
+      0 6px 0 #262626,
+      0 0 10px rgba(0,0,0,0.7),
+      inset 0 -3px 6px #262626;
+    color: #bbb;
+  }
+
+  /* Responsive scaling for small screens */
+  @media (max-width: 360px) {
+    .calculator {
+      width: 280px;
+      padding: 20px 20px 28px;
+    }
+    button {
+      height: 48px;
+      width: 48px;
+      font-size: 1rem;
+    }
+    .equal {
+      height: calc(48px * 2 + 16px);
+      font-size: 1.1rem;
+      border-radius: 24px;
+      padding-bottom: 2px;
+    }
+    .result {
+      font-size: 2rem;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="calculator" role="application" aria-label="Calculator">
+    <section class="history" aria-live="polite" aria-atomic="true" id="history"></section>
+    <div class="result-row">
+      <span class="equals-sign" aria-hidden="true">=</span>
+      <output class="result" aria-live="assertive" id="result" aria-atomic="true" role="textbox" aria-readonly="true" tabindex="0">0</output>
+    </div>
+
+    <div class="theme-toggle-row">
+      <label class="switch" for="themeSwitch" tabindex="0" aria-label="Switch to Light Theme">
+        <input type="checkbox" id="themeSwitch" />
+        <span class="slider"></span>
+      </label>
+      <span>Switch to Light Theme</span>
+    </div>
+
+    <div class="buttons" role="grid" aria-label="Calculator buttons">
+      <button type="button" class="clear" aria-label="Clear" data-action="clear" role="gridcell">C</button>
+      <button type="button" class="paren" aria-label="Left Parenthesis" data-value="(" role="gridcell">(</button>
+      <button type="button" class="paren" aria-label="Right Parenthesis" data-value=")" role="gridcell">)</button>
+      <button type="button" class="operator" aria-label="Multiply" data-value="*" role="gridcell">×</button>
+
+      <button type="button" class="sqrt" aria-label="Square Root" data-action="sqrt" role="gridcell">√</button>
+      <button type="button" class="percent" aria-label="Percent" data-action="percent" role="gridcell">%</button>
+      <button type="button" class="operator" aria-label="Divide" data-value="/" role="gridcell">÷</button>
+      <button type="button" class="operator" aria-label="Minus" data-value="-" role="gridcell">−</button>
+
+      <button type="button" class="number" aria-label="Seven" data-value="7" role="gridcell">7</button>
+      <button type="button" class="number" aria-label="Eight" data-value="8" role="gridcell">8</button>
+      <button type="button" class="number" aria-label="Nine" data-value="9" role="gridcell">9</button>
+      <button type="button" class="operator" aria-label="Plus" data-value="+" role="gridcell">+</button>
+
+      <button type="button" class="number" aria-label="Four" data-value="4" role="gridcell">4</button>
+      <button type="button" class="number" aria-label="Five" data-value="5" role="gridcell">5</button>
+      <button type="button" class="number" aria-label="Six" data-value="6" role="gridcell">6</button>
+
+      <button type="button" class="number" aria-label="One" data-value="1" role="gridcell">1</button>
+      <button type="button" class="number" aria-label="Two" data-value="2" role="gridcell">2</button>
+      <button type="button" class="number" aria-label="Three" data-value="3" role="gridcell">3</button>
+
+      <button type="button" class="dot" aria-label="Decimal Point" data-value="." role="gridcell">.</button>
+      <button type="button" class="number" aria-label="Zero" data-value="0" role="gridcell">0</button>
+      <button type="button" class="backspace" aria-label="Backspace" data-action="backspace" role="gridcell">
+        <svg width="20" height="14" aria-hidden="true" focusable="false" viewBox="0 0 20 14" fill="#bbb" xmlns="http://www.w3.org/2000/svg" >
+          <path d="M17.92 1.333H6.313a1.594 1.594 0 0 0-1.376.792L.074 7a1.312 1.312 0 0 0 0 1.999l4.864 4.82a1.5 1.5 0 0 0 1.375.713h11.608c.517 0 .938-.43.938-.94V2.274c0-.51-.42-.94-.94-.94zM6 3.206l-4.618 4.58 4.618 4.58a.458.458 0 0 0 .396-.24l1.525-2.693a.454.454 0 0 0 0-.453L6.408 3.44A.458.458 0 0 0 6 3.206zm7.768 5.769-1.464 1.444a.18.18 0 0 1-.254 0l-.352-.35a.18.18 0 0 1 0-.254l1.465-1.444-1.465-1.444a.18.18 0 0 1 0-.254l.351-.351a.18.18 0 0 1 .254 0l1.464 1.444 1.465-1.444a.18.18 0 0 1 .254 0l.351.35a.18.18 0 0 1 0 .254L14.652 8.98l1.464 1.444a.18.18 0 0 1 0 .254l-.351.35a.18.18 0 0 1-.255 0z"/>
+        </svg>
+      </button>
+
+      <button type="button" class="equal" aria-label="Equals" data-action="equals" role="gridcell">=</button>
+    </div>
+  </div>
+
+<script>
+  (() => {
+    const historyEl = document.getElementById('history');
+    const resultEl = document.getElementById('result');
+    const buttons = document.querySelectorAll('.buttons button');
+    const themeSwitch = document.getElementById('themeSwitch');
+    const calculator = document.querySelector('.calculator');
+
+    let expression = "";
+    let lastResult = "";
+    let historyStack = [];
+
+    // Evaluate expression safely
+    function evaluateExpression(expr) {
+      try {
+        // Replace Unicode multiplication & division for JS eval
+        let safeExpr = expr
+          .replace(/×/g, '*')
+          .replace(/÷/g, '/')
+          .replace(/−/g, '-')
+          .replace(/√/g, 'Math.sqrt')
+          .replace(/%/g, '/100');
+
+        // Prevent double operators except for minus (e.g. "--")
+        safeExpr = safeExpr.replace(/([+\-*\/]){2,}/g, (m) => m[m.length-1]);
+        
+        // eslint-disable-next-line no-eval
+        let value = eval(safeExpr);
+        if (typeof value === 'number' && !isNaN(value) && isFinite(value)) {
+          return value;
+        }
+        return "Error";
+      } catch {
+        return "Error";
+      }
+    }
+
+    function updateDisplay() {
+      historyEl.textContent = expression;
+      if(expression.length === 0){
+        resultEl.textContent = "0";
+        return;
+      }
+      const val = evaluateExpression(expression);
+      resultEl.textContent = val.toString();
+      lastResult = val.toString();
+    }
+
+    function appendValue(val) {
+      expression += val;
+      updateDisplay();
+    }
+
+    function clearAll() {
+      expression = "";
+      updateDisplay();
+    }
+
+    function backspace() {
+      expression = expression.slice(0, -1);
+      updateDisplay();
+    }
+
+    function doSqrt() {
+      if(expression.length === 0) {
+        expression = "Math.sqrt(";
+      } else {
+        // Insert sqrt around last number if possible or open bracket
+        expression += "√(";
+      }
+      updateDisplay();
+    }
+
+    function doPercent() {
+      // append percent sign that will be replaced with /100 in eval
+      expression += '%';
+      updateDisplay();
+    }
+
+    function calculateResult() {
+      const res = evaluateExpression(expression);
+      if (res !== "Error") {
+        historyStack.push(expression + " = " + res);
+        expression = res.toString();
+        updateDisplay();
+      } else {
+        resultEl.textContent = "Error";
+      }
+    }
+
+    function toggleTheme() {
+      if(themeSwitch.checked) {
+        calculator.style.background = '#f9f9f9cc';
+        calculator.style.color = '#222';
+        document.body.style.background = '#eee';
+        // update colors for buttons
+        buttons.forEach(btn => {
+          btn.style.color = '#222';
+          // Reset background and box shadows for light theme
+          if(btn.classList.contains('clear')) {
+            btn.style.background = '#f5a623';
+            btn.style.boxShadow = '0 6px 0 #aa7a09, 0 0 15px rgba(245,166,35,0.8), inset 0 -3px 6px #aa7a09';
+            btn.style.color = '#3c1f00';
+          } else if(btn.classList.contains('operator')) {
+            btn.style.background = '#7c6b9a';
+            btn.style.boxShadow = '0 6px 0 #5a4b72, 0 0 18px rgba(124,102,153,0.7), inset 0 -3px 6px #5a4b72';
+            btn.style.color = '#bf9d3e';
+          } else if(btn.classList.contains('equal')) {
+            btn.style.background = '#9c67ff';
+            btn.style.boxShadow = '0 8px 0 #703fcc, 0 0 24px rgba(156,103,255,0.85), inset 0 -4px 8px #703fcc';
+            btn.style.color = '#fff';
+          } else if(btn.classList.contains('paren') || btn.classList.contains('sqrt') || btn.classList.contains('percent')) {
+            btn.style.background = '#978f9d';
+            btn.style.boxShadow = '0 6px 0 #615b6a, 0 0 12px rgba(101,96,109,0.7), inset 0 -3px 6px #615b6a';
+            btn.style.color = '#a79a4f';
+          } else if(btn.classList.contains('dot') || btn.classList.contains('backspace')) {
+            btn.style.background = '#aaa';
+            btn.style.boxShadow = '0 6px 0 #777, 0 0 10px rgba(0,0,0,0.7), inset 0 -3px 6px #777';
+            btn.style.color = '#444';
+          } else {
+            btn.style.background = '#ddd';
+            btn.style.boxShadow = '0 6px 0 #aaa, 0 0 12px rgba(0,0,0,0.5), inset 0 -3px 6px #aaa';
+            btn.style.color = '#222';
+          }
+        });
+      } else {
+        // revert to dark theme
+        calculator.style.background = '#222222cc';
+        calculator.style.color = '#ddd';
+        document.body.style.background = '#121212';
+        buttons.forEach(btn => {
+          btn.style.color = '';
+          btn.style.background = '';
+          btn.style.boxShadow = '';
+        });
+      }
+    }
+
+    // Button click handler
+    buttons.forEach(button => {
+      button.addEventListener('click', () => {
+        const val = button.dataset.value;
+        const action = button.dataset.action;
+
+        if (action === 'clear') {
+          clearAll();
+        } else if (action === 'backspace') {
+          backspace();
+        } else if (action === 'equals') {
+          calculateResult();
+        } else if (action === 'sqrt') {
+          if(expression.length === 0 || /[\+\-\*\/\(\)]$/.test(expression)){
+            appendValue('√(');
+          } else {
+            appendValue('*√(');
+          }
+        } else if (action === 'percent') {
+          appendValue('%');
+        } else if (val !== undefined) {
+          appendValue(val);
+        }
+      });
+    });
+
+    themeSwitch.addEventListener('change', toggleTheme);
+
+    // Initialize display
+    updateDisplay();
+  })();
+</script>
+</body>
+</html>
+
