@@ -1,471 +1,473 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>3D Calculator-AKHIL</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap');
-  body {
-    background: #121212;
-    font-family: 'Montserrat', sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
-  .calculator {
-    background: #222222cc;
-    width: 320px;
-    border-radius: 24px;
-    box-shadow: 0 10px 30px rgb(0 0 0 / 0.9);
-    padding: 24px 24px 32px;
-    color: #ddd;
-    display: flex;
-    flex-direction: column;
-    user-select: none;
-  }
-  .history {
-    font-size: 0.85rem;
-    min-height: 74px;
-    line-height: 1.25;
-    color: #8a8a8a;
-    word-break: break-word;
-    letter-spacing: 0.01em;
-  }
-  .result-row {
-    margin-top: 12px;
-    display: flex;
-    align-items: baseline;
-  }
-  .equals-sign {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #999;
-    margin-right: 12px;
-    user-select: none;
-  }
-  .result {
-    font-weight: 700;
-    font-size: 2.5rem;
-    color: #ccc;
-    flex: 1;
-    text-align: right;
-    user-select: text;
-  }
-  /* Toggle theme row */
-  .theme-toggle-row {
-    margin: 16px 0 24px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    color: #777;
-    font-size: 0.78rem;
-    user-select: none;
-  }
-  .switch {
-    position: relative;
-    display: inline-block;
-    width: 48px;
-    height: 24px;
-    margin-right: 10px;
-  }
-  .switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-  .slider {
-    position: absolute;
-    cursor: pointer;
-    background-color: #555;
-    border-radius: 12px;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    transition: 0.3s ease;
-  }
-  .slider:before {
-    position: absolute;
-    content: "";
-    height: 18px;
-    width: 18px;
-    left: 3px;
-    bottom: 3px;
-    background-color: #ccc;
-    border-radius: 50%;
-    transition: 0.3s ease;
-  }
-  input:checked + .slider {
-    background-color: #7c3aed;
-  }
-  input:checked + .slider:before {
-    transform: translateX(24px);
-    background-color: #fff;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>3D Calculator-AKHIL</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap');
 
-  /* Buttons grid */
-  .buttons {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-gap: 16px;
-  }
-  button {
-    cursor: pointer;
-    border: none;
-    border-radius: 50%;
-    height: 56px;
-    width: 56px;
-    font-weight: 600;
-    font-size: 1.1rem;
-    color: #ddd;
-    background: #333333;
-    box-shadow:
-      0 6px 0 #1a1a1a,
-      0 0 12px rgba(0,0,0,0.6),
-      inset 0 -3px 6px #121212;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition:
-      background-color 0.3s,
-      box-shadow 0.15s,
-      transform 0.15s;
-    user-select: none;
-  }
-  button.operator {
-    background: #58407c;
-    box-shadow:
-      0 6px 0 #3a2f5e,
-      0 0 18px rgba(93,69,140,0.7),
-      inset 0 -3px 6px #3a2f5e;
-    color: #e9d66b;
-  }
-  button.equal {
-    grid-row: span 2;
-    border-radius: 28px;
-    background: #7c3aed;
-    box-shadow:
-      0 8px 0 #4f2ca9,
-      0 0 24px rgba(124,58,237,0.85),
-      inset 0 -4px 8px #4f2ca9;
-    font-size: 1.3rem;
-    color: #fff;
-    padding-bottom: 4px;
-  }
-  button.clear {
-    background: #f5a623;
-    color: #3c1f00;
-    box-shadow:
-      0 6px 0 #aa7a09,
-      0 0 15px rgba(245,166,35,0.8),
-      inset 0 -3px 6px #aa7a09;
-  }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #d3d5db, #a8a8a8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      padding: 15px;
+    }
+    /* Container for both calculators, side by side responsive */
+    .container {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+      max-width: 700px;
+    }
 
-  button:active {
-    transform: translateY(3px);
-    box-shadow:
-      0 3px 0 #121212,
-      0 0 8px rgba(0,0,0,0.5),
-      inset 0 -1px 3px #121212;
-  }
-  button:hover {
-    filter: brightness(110%);
-    transform: translateY(-2px);
-    box-shadow:
-      0 8px 0 #222,
-      0 0 18px rgba(0,0,0,0.9),
-      inset 0 -5px 10px #222;
-  }
-
-  /* Special buttons: parentheses and sqrt, percent, division, multiply, minus, plus */
-  button.paren, button.sqrt, button.percent {
-    background: #4b4b4b;
-    box-shadow:
-      0 6px 0 #222,
-      0 0 12px rgba(0,0,0,0.7),
-      inset 0 -3px 6px #222;
-    color: #ddb347;
-  }
-  button.operator:hover {
-    filter: brightness(130%);
-    transform: translateY(-2.5px);
-    box-shadow:
-      0 10px 0 #3a2f5e,
-      0 0 22px rgba(93,69,140,0.9),
-      inset 0 -5px 9px #3a2f5e;
-  }
-  button.equal:hover {
-    filter: brightness(130%);
-    transform: translateY(-3px);
-    box-shadow:
-      0 10px 0 #4f2ca9,
-      0 0 30px rgba(124,58,237,1),
-      inset 0 -5px 9px #4f2ca9;
-  }
-
-  /* Numbers */
-  button.number:hover {
-    filter: brightness(120%);
-  }
-
-  /* Dot and backspace */
-  button.dot, button.backspace {
-    background: #3a3a3a;
-    box-shadow:
-      0 6px 0 #262626,
-      0 0 10px rgba(0,0,0,0.7),
-      inset 0 -3px 6px #262626;
-    color: #bbb;
-  }
-
-  /* Responsive scaling for small screens */
-  @media (max-width: 360px) {
+    /* The calculator base styling */
     .calculator {
-      width: 280px;
-      padding: 20px 20px 28px;
+      border-radius: 28px;
+      width: 320px;
+      max-width: 100vw;
+      display: flex;
+      flex-direction: column;
+      padding: 25px 20px 30px;
+      user-select: none;
+      box-shadow: inset 10px 10px 15px -6px rgba(0,0,0,0.6);
+      position: relative;
+      overflow: hidden;
     }
-    button {
-      height: 48px;
-      width: 48px;
-      font-size: 1rem;
+
+    /* Shared display styling */
+    .display {
+      width: 100%;
+      min-height: 120px;
+      padding: 15px 20px 0 20px;
+      text-align: right;
+      border-radius: 20px;
+      font-weight: 500;
+      line-height: 1.1;
+      cursor: default;
+      word-wrap: break-word;
+      position: relative;
+      user-select: text;
     }
-    .equal {
-      height: calc(48px * 2 + 16px);
-      font-size: 1.1rem;
-      border-radius: 24px;
-      padding-bottom: 2px;
+    .history {
+      font-size: 0.9rem;
+      opacity: 0.35;
+      margin-bottom: 7px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      user-select: none;
+      font-variant-numeric: tabular-nums;
     }
     .result {
-      font-size: 2rem;
+      font-size: 2.75rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.02em;
+      user-select: text;
+      line-height: 1.1;
     }
-  }
-</style>
+
+    /* Microphone icon container */
+    .mic-button {
+      position: absolute;
+      top: 18px;
+      left: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      opacity: 0.3;
+      user-select: none;
+    }
+    .mic-button:hover {
+      opacity: 0.6;
+    }
+    .mic-icon {
+      fill: currentColor;
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Buttons grid */
+    .buttons {
+      margin-top: 25px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+    }
+
+    /* Each button styling */
+    button {
+      border: none;
+      outline: none;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 1.3rem;
+      padding: 16px 0;
+      cursor: pointer;
+      transition: background-color 0.25s ease, box-shadow 0.2s ease;
+      user-select: none;
+      font-family: 'JetBrains Mono', monospace;
+      box-shadow: inset 6px 6px 8px rgba(0,0,0,0.2);
+      color: #444;
+      background-color: #e0e0e0;
+      box-shadow:
+        inset 5px 5px 6px #bebebe,
+        inset -5px -5px 6px #ffffff;
+    }
+    button:active {
+      box-shadow: inset 2px 2px 6px rgba(0,0,0,0.3);
+      background-color: #cacaca;
+    }
+
+    /* Function buttons: C, +/-, % */
+    .btn-fn {
+      color: #555;
+      background-color: #bfbfbf;
+      box-shadow:
+        inset 5px 5px 6px #a9a9a9,
+        inset -5px -5px 6px #f2f2f2;
+    }
+    .btn-fn:active {
+      background-color: #a2a2a2;
+    }
+
+    /* Operator Buttons (orange) */
+    .btn-op {
+      color: white;
+      background-color: #f97316; /* orange */
+      box-shadow:
+        inset 5px 5px 10px #cd6f12,
+        inset -5px -5px 10px #fb8c20;
+    }
+    .btn-op:active {
+      background-color: #d75d08;
+      box-shadow: inset 2px 2px 8px #b14e09;
+    }
+
+    /* Zero button - wider */
+    .btn-zero {
+      grid-column: span 2;
+      text-align: left;
+      padding-left: 42px;
+      font-size: 1.3rem;
+    }
+
+    /* Dark Theme Overrides */
+    .calculator.dark {
+      background: #25272a;
+      box-shadow:
+        inset 10px 10px 15px -6px rgba(0,0,0,0.9),
+        15px 15px 30px #19191a,
+        -15px -15px 30px #2b2b2d;
+      color: #ddd;
+      box-shadow: inset 8px 8px 10px #1b1c1e,
+                  inset -8px -8px 16px #313338;
+    }
+    .calculator.dark .display {
+      color: #eee;
+      background: transparent;
+    }
+    .calculator.dark .history {
+      color: #999;
+      opacity: 0.45;
+    }
+    .calculator.dark button {
+      color: #bbb;
+      background-color: #2f3237;
+      box-shadow:
+        inset 5px 5px 8px #1b1c1f,
+        inset -5px -5px 8px #43454b;
+    }
+    .calculator.dark button.btn-fn {
+      background-color: #3a3d43;
+      color: #ccc;
+      box-shadow:
+        inset 5px 5px 8px #242629,
+        inset -5px -5px 8px #4f5157;
+    }
+    .calculator.dark button.btn-op {
+      background-color: #f97316;
+      color: #fff;
+      box-shadow:
+        inset 5px 5px 10px #cd6f12,
+        inset -5px -5px 10px #fb8c20;
+    }
+    .calculator.dark button:active {
+      background-color: #ca5b08;
+      box-shadow: inset 2px 2px 6px #9c4505;
+    }
+
+    /* Rounded corners for first and last rows for style on mobile */
+    .calculator {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Responsive text sizes */
+    @media (max-width: 400px) {
+      .container {
+        gap: 20px;
+      }
+      .calculator {
+        width: 100%;
+        max-width: 100vw;
+        padding: 18px 15px 25px;
+      }
+      .display {
+        min-height: 90px;
+        padding: 12px 15px 0 15px;
+      }
+      .result {
+        font-size: 2.1rem;
+      }
+      button {
+        font-size: 1.15rem;
+        padding: 14px 0;
+        border-radius: 12px;
+      }
+      .btn-zero {
+        font-size: 1.15rem;
+        padding-left: 30px;
+      }
+      .mic-button {
+        top: 12px;
+        left: 15px;
+        width: 35px;
+        height: 35px;
+      }
+      .mic-icon {
+        width: 16px;
+        height: 16px;
+      }
+    }
+  </style>
 </head>
 <body>
-  <div class="calculator" role="application" aria-label="Calculator">
-    <section class="history" aria-live="polite" aria-atomic="true" id="history"></section>
-    <div class="result-row">
-      <span class="equals-sign" aria-hidden="true">=</span>
-      <output class="result" aria-live="assertive" id="result" aria-atomic="true" role="textbox" aria-readonly="true" tabindex="0">0</output>
-    </div>
-
-    <div class="theme-toggle-row">
-      <label class="switch" for="themeSwitch" tabindex="0" aria-label="Switch to Light Theme">
-        <input type="checkbox" id="themeSwitch" />
-        <span class="slider"></span>
-      </label>
-      <span>Switch to Light Theme</span>
-    </div>
-
-    <div class="buttons" role="grid" aria-label="Calculator buttons">
-      <button type="button" class="clear" aria-label="Clear" data-action="clear" role="gridcell">C</button>
-      <button type="button" class="paren" aria-label="Left Parenthesis" data-value="(" role="gridcell">(</button>
-      <button type="button" class="paren" aria-label="Right Parenthesis" data-value=")" role="gridcell">)</button>
-      <button type="button" class="operator" aria-label="Multiply" data-value="*" role="gridcell">×</button>
-
-      <button type="button" class="sqrt" aria-label="Square Root" data-action="sqrt" role="gridcell">√</button>
-      <button type="button" class="percent" aria-label="Percent" data-action="percent" role="gridcell">%</button>
-      <button type="button" class="operator" aria-label="Divide" data-value="/" role="gridcell">÷</button>
-      <button type="button" class="operator" aria-label="Minus" data-value="-" role="gridcell">−</button>
-
-      <button type="button" class="number" aria-label="Seven" data-value="7" role="gridcell">7</button>
-      <button type="button" class="number" aria-label="Eight" data-value="8" role="gridcell">8</button>
-      <button type="button" class="number" aria-label="Nine" data-value="9" role="gridcell">9</button>
-      <button type="button" class="operator" aria-label="Plus" data-value="+" role="gridcell">+</button>
-
-      <button type="button" class="number" aria-label="Four" data-value="4" role="gridcell">4</button>
-      <button type="button" class="number" aria-label="Five" data-value="5" role="gridcell">5</button>
-      <button type="button" class="number" aria-label="Six" data-value="6" role="gridcell">6</button>
-
-      <button type="button" class="number" aria-label="One" data-value="1" role="gridcell">1</button>
-      <button type="button" class="number" aria-label="Two" data-value="2" role="gridcell">2</button>
-      <button type="button" class="number" aria-label="Three" data-value="3" role="gridcell">3</button>
-
-      <button type="button" class="dot" aria-label="Decimal Point" data-value="." role="gridcell">.</button>
-      <button type="button" class="number" aria-label="Zero" data-value="0" role="gridcell">0</button>
-      <button type="button" class="backspace" aria-label="Backspace" data-action="backspace" role="gridcell">
-        <svg width="20" height="14" aria-hidden="true" focusable="false" viewBox="0 0 20 14" fill="#bbb" xmlns="http://www.w3.org/2000/svg" >
-          <path d="M17.92 1.333H6.313a1.594 1.594 0 0 0-1.376.792L.074 7a1.312 1.312 0 0 0 0 1.999l4.864 4.82a1.5 1.5 0 0 0 1.375.713h11.608c.517 0 .938-.43.938-.94V2.274c0-.51-.42-.94-.94-.94zM6 3.206l-4.618 4.58 4.618 4.58a.458.458 0 0 0 .396-.24l1.525-2.693a.454.454 0 0 0 0-.453L6.408 3.44A.458.458 0 0 0 6 3.206zm7.768 5.769-1.464 1.444a.18.18 0 0 1-.254 0l-.352-.35a.18.18 0 0 1 0-.254l1.465-1.444-1.465-1.444a.18.18 0 0 1 0-.254l.351-.351a.18.18 0 0 1 .254 0l1.464 1.444 1.465-1.444a.18.18 0 0 1 .254 0l.351.35a.18.18 0 0 1 0 .254L14.652 8.98l1.464 1.444a.18.18 0 0 1 0 .254l-.351.35a.18.18 0 0 1-.255 0z"/>
+  <div class="container" role="main" aria-label="Two styled calculators side by side">
+    <!-- Dark Calculator -->
+    <section class="calculator dark" aria-labelledby="dark-title">
+      <h2 id="dark-title" class="sr-only"></h2>
+      <button class="mic-button" aria-label="Voice input not activated" tabindex="-1" aria-disabled="true" disabled>
+        <svg class="mic-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z"/>
+          <path d="M19 10v1a7 7 0 0 1-14 0v-1"/>
+          <line x1="12" y1="19" x2="12" y2="23"/>
+          <line x1="8" y1="23" x2="16" y2="23"/>
         </svg>
       </button>
+      <div class="display" role="region" aria-live="polite" aria-atomic="true">
+        <div class="history" id="history-dark">&nbsp;</div>
+        <div class="result" id="result-dark">0</div>
+      </div>
+      <div class="buttons" role="group" aria-label="Calculator keys">
+        <button class="btn-fn" data-action="clear" aria-label="Clear">C</button>
+        <button class="btn-fn" data-action="posneg" aria-label="Toggle positive or negative sign">+/-</button>
+        <button class="btn-fn" data-action="percent" aria-label="Percent">%</button>
+        <button class="btn-op" data-action="divide" aria-label="Divide">÷</button>
 
-      <button type="button" class="equal" aria-label="Equals" data-action="equals" role="gridcell">=</button>
-    </div>
-  </div>
+        <button data-action="7" aria-label="Number seven">7</button>
+        <button data-action="8" aria-label="Number eight">8</button>
+        <button data-action="9" aria-label="Number nine">9</button>
+        <button class="btn-op" data-action="multiply" aria-label="Multiply">×</button>
 
-<script>
-  (() => {
-    const historyEl = document.getElementById('history');
-    const resultEl = document.getElementById('result');
-    const buttons = document.querySelectorAll('.buttons button');
-    const themeSwitch = document.getElementById('themeSwitch');
-    const calculator = document.querySelector('.calculator');
+        <button data-action="4" aria-label="Number four">4</button>
+        <button data-action="5" aria-label="Number five">5</button>
+        <button data-action="6" aria-label="Number six">6</button>
+        <button class="btn-op" data-action="subtract" aria-label="Subtract">−</button>
 
-    let expression = "";
-    let lastResult = "";
-    let historyStack = [];
+        <button data-action="1" aria-label="Number one">1</button>
+        <button data-action="2" aria-label="Number two">2</button>
+        <button data-action="3" aria-label="Number three">3</button>
+        <button class="btn-op" data-action="add" aria-label="Add">+</button>
 
-    // Evaluate expression safely
-    function evaluateExpression(expr) {
-      try {
-        // Replace Unicode multiplication & division for JS eval
-        let safeExpr = expr
-          .replace(/×/g, '*')
-          .replace(/÷/g, '/')
-          .replace(/−/g, '-')
-          .replace(/√/g, 'Math.sqrt')
-          .replace(/%/g, '/100');
+        <button data-action="0" class="btn-zero" aria-label="Number zero">0</button>
+        <button data-action="decimal" aria-label="Decimal point">.</button>
+        <button class="btn-op" data-action="equals" aria-label="Equals">=</button>
+      </div>
+    </section>
 
-        // Prevent double operators except for minus (e.g. "--")
-        safeExpr = safeExpr.replace(/([+\-*\/]){2,}/g, (m) => m[m.length-1]);
-        
-        // eslint-disable-next-line no-eval
-        let value = eval(safeExpr);
-        if (typeof value === 'number' && !isNaN(value) && isFinite(value)) {
-          return value;
+   
+  <script>
+    // Core calculator logic and state handling
+    class Calculator {
+      constructor(historyElem, resultElem) {
+        this.historyElem = historyElem;
+        this.resultElem = resultElem;
+        this.reset();
+      }
+      reset() {
+        this.currentInput = '0';
+        this.previousInput = null;
+        this.operation = null;
+        this.updateDisplay();
+      }
+      clearEntry() {
+        this.currentInput = '0';
+        this.updateDisplay();
+      }
+      appendNumber(number) {
+        if (this.currentInput === '0' && number !== '.') {
+          this.currentInput = number;
+        } else if (number === '.' && this.currentInput.includes('.')) {
+          return; // Do not allow multiple decimals
+        } else {
+          this.currentInput += number;
         }
-        return "Error";
-      } catch {
-        return "Error";
+        this.updateDisplay();
+      }
+      toggleSign() {
+        if (this.currentInput === '0') return;
+        if (this.currentInput.startsWith('-')) {
+          this.currentInput = this.currentInput.substring(1);
+        } else {
+          this.currentInput = '-' + this.currentInput;
+        }
+        this.updateDisplay();
+      }
+      percent() {
+        let current = parseFloat(this.currentInput);
+        if (isNaN(current)) return;
+        current = current / 100;
+        this.currentInput = current.toString();
+        this.updateDisplay();
+      }
+      chooseOperation(op) {
+        if (this.currentInput === '') return;
+        if (this.previousInput !== null) {
+          this.compute();
+        } else {
+          this.previousInput = this.currentInput;
+        }
+        this.operation = op;
+        this.currentInput = '';
+        this.updateDisplay();
+      }
+      compute() {
+        let computation;
+        const prev = parseFloat(this.previousInput);
+        const current = parseFloat(this.currentInput);
+        if (isNaN(prev) || isNaN(current)) return;
+        switch(this.operation) {
+          case 'add':
+            computation = prev + current;
+            break;
+          case 'subtract':
+            computation = prev - current;
+            break;
+          case 'multiply':
+            computation = prev * current;
+            break;
+          case 'divide':
+            if (current === 0) {
+              computation = 'Error';
+              break;
+            }
+            computation = prev / current;
+            break;
+          default:
+            return;
+        }
+        this.currentInput = computation.toString();
+        this.operation = null;
+        this.previousInput = null;
+        this.updateDisplay();
+      }
+      getDisplayNumber(number) {
+        if (number === 'Error') return number;
+        const stringNum = number.toString();
+        const [integer, decimal] = stringNum.split('.');
+        const integerDisplay = parseInt(integer).toLocaleString('en-US');
+        if (decimal != null) {
+          return integerDisplay + '.' + decimal;
+        } else {
+          return integerDisplay;
+        }
+      }
+      updateDisplay() {
+        this.resultElem.textContent = this.getDisplayNumber(this.currentInput);
+        // Compose history display string
+        let histString = '';
+        if (this.previousInput !== null && this.operation !== null) {
+          let opChar = '';
+          switch (this.operation) {
+            case 'add': opChar = '+'; break;
+            case 'subtract': opChar = '−'; break;
+            case 'multiply': opChar = '×'; break;
+            case 'divide': opChar = '÷'; break;
+          }
+          histString = this.getDisplayNumber(this.previousInput) + ' ' + opChar + ' ' + (this.currentInput ? this.getDisplayNumber(this.currentInput) : '');
+        } else {
+          histString = '\u00A0'; // Non-breaking space
+        }
+        this.historyElem.textContent = histString;
       }
     }
 
-    function updateDisplay() {
-      historyEl.textContent = expression;
-      if(expression.length === 0){
-        resultEl.textContent = "0";
-        return;
-      }
-      const val = evaluateExpression(expression);
-      resultEl.textContent = val.toString();
-      lastResult = val.toString();
-    }
+    // Initialize calculators for both dark sections
+    function setupCalculator(calculatorElem) {
+      const historyElem = calculatorElem.querySelector('.history');
+      const resultElem = calculatorElem.querySelector('.result');
+      const calculator = new Calculator(historyElem, resultElem);
 
-    function appendValue(val) {
-      expression += val;
-      updateDisplay();
-    }
+      calculatorElem.querySelectorAll('button').forEach(button => {
+        button.addEventListener('click', () => {
+          const action = button.dataset.action;
+          if (!action) return;
 
-    function clearAll() {
-      expression = "";
-      updateDisplay();
-    }
-
-    function backspace() {
-      expression = expression.slice(0, -1);
-      updateDisplay();
-    }
-
-    function doSqrt() {
-      if(expression.length === 0) {
-        expression = "Math.sqrt(";
-      } else {
-        // Insert sqrt around last number if possible or open bracket
-        expression += "√(";
-      }
-      updateDisplay();
-    }
-
-    function doPercent() {
-      // append percent sign that will be replaced with /100 in eval
-      expression += '%';
-      updateDisplay();
-    }
-
-    function calculateResult() {
-      const res = evaluateExpression(expression);
-      if (res !== "Error") {
-        historyStack.push(expression + " = " + res);
-        expression = res.toString();
-        updateDisplay();
-      } else {
-        resultEl.textContent = "Error";
-      }
-    }
-
-    function toggleTheme() {
-      if(themeSwitch.checked) {
-        calculator.style.background = '#f9f9f9cc';
-        calculator.style.color = '#222';
-        document.body.style.background = '#eee';
-        // update colors for buttons
-        buttons.forEach(btn => {
-          btn.style.color = '#222';
-          // Reset background and box shadows for light theme
-          if(btn.classList.contains('clear')) {
-            btn.style.background = '#f5a623';
-            btn.style.boxShadow = '0 6px 0 #aa7a09, 0 0 15px rgba(245,166,35,0.8), inset 0 -3px 6px #aa7a09';
-            btn.style.color = '#3c1f00';
-          } else if(btn.classList.contains('operator')) {
-            btn.style.background = '#7c6b9a';
-            btn.style.boxShadow = '0 6px 0 #5a4b72, 0 0 18px rgba(124,102,153,0.7), inset 0 -3px 6px #5a4b72';
-            btn.style.color = '#bf9d3e';
-          } else if(btn.classList.contains('equal')) {
-            btn.style.background = '#9c67ff';
-            btn.style.boxShadow = '0 8px 0 #703fcc, 0 0 24px rgba(156,103,255,0.85), inset 0 -4px 8px #703fcc';
-            btn.style.color = '#fff';
-          } else if(btn.classList.contains('paren') || btn.classList.contains('sqrt') || btn.classList.contains('percent')) {
-            btn.style.background = '#978f9d';
-            btn.style.boxShadow = '0 6px 0 #615b6a, 0 0 12px rgba(101,96,109,0.7), inset 0 -3px 6px #615b6a';
-            btn.style.color = '#a79a4f';
-          } else if(btn.classList.contains('dot') || btn.classList.contains('backspace')) {
-            btn.style.background = '#aaa';
-            btn.style.boxShadow = '0 6px 0 #777, 0 0 10px rgba(0,0,0,0.7), inset 0 -3px 6px #777';
-            btn.style.color = '#444';
-          } else {
-            btn.style.background = '#ddd';
-            btn.style.boxShadow = '0 6px 0 #aaa, 0 0 12px rgba(0,0,0,0.5), inset 0 -3px 6px #aaa';
-            btn.style.color = '#222';
+          switch(action) {
+            case 'clear':
+              calculator.reset();
+              break;
+            case 'posneg':
+              calculator.toggleSign();
+              break;
+            case 'percent':
+              calculator.percent();
+              break;
+            case 'add':
+            case 'subtract':
+            case 'multiply':
+            case 'divide':
+              calculator.chooseOperation(action);
+              break;
+            case 'equals':
+              calculator.compute();
+              break;
+            case 'decimal':
+              calculator.appendNumber('.');
+              break;
+            default:
+              // numbers 0-9
+              if (!isNaN(action)) {
+                calculator.appendNumber(action);
+              }
           }
         });
-      } else {
-        // revert to dark theme
-        calculator.style.background = '#222222cc';
-        calculator.style.color = '#ddd';
-        document.body.style.background = '#121212';
-        buttons.forEach(btn => {
-          btn.style.color = '';
-          btn.style.background = '';
-          btn.style.boxShadow = '';
-        });
-      }
-    }
-
-    // Button click handler
-    buttons.forEach(button => {
-      button.addEventListener('click', () => {
-        const val = button.dataset.value;
-        const action = button.dataset.action;
-
-        if (action === 'clear') {
-          clearAll();
-        } else if (action === 'backspace') {
-          backspace();
-        } else if (action === 'equals') {
-          calculateResult();
-        } else if (action === 'sqrt') {
-          if(expression.length === 0 || /[\+\-\*\/\(\)]$/.test(expression)){
-            appendValue('√(');
-          } else {
-            appendValue('*√(');
-          }
-        } else if (action === 'percent') {
-          appendValue('%');
-        } else if (val !== undefined) {
-          appendValue(val);
-        }
       });
+    }
+
+    document.querySelectorAll('.calculator').forEach(calc => {
+      setupCalculator(calc);
     });
-
-    themeSwitch.addEventListener('change', toggleTheme);
-
-    // Initialize display
-    updateDisplay();
-  })();
-</script>
+  </script>
+</div>
 </body>
 </html>
 
